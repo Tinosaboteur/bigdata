@@ -1,23 +1,2 @@
-# create index with the settings and mappings above
-es.indices.create(index="movie_rec", body=create_index)
-
-# write ratings data
-ratings.write.format("es").save("movie_rec/ratings")
-
-# write user data, specifying the DataFrame column to use as the id mapping
-user_cleaned.write.format("es").option("es.mapping.id", "userId").save("movie_rec/users")
-
-# write movie data, specifying the DataFrame column to use as the id mapping
-movie_cleaned.write.format("es").option("es.mapping.id", "movieId").save("movie_rec/movies")
-
-# check load went ok
-print("User DF count: %d" % user_cleaned.count())
-print("ES index count: %d" % es.count(index="movie_rec", doc_type="users")['count'])
-
-print("Movie DF count: %d" % movie_cleaned.count())
-print("ES index count: %d" % es.count(index="movie_rec", doc_type="movies")['count'])
-
-# check write went ok
-print("Rating DF count: %d" % ratings.count())
-print("ES index count:  %d" % es.count(index="movie_rec", doc_type="ratings")['count'])
-
+Py4JJavaError: An error occurred while calling o336.save.
+: java.lang.ClassNotFoundException: Failed to find data source: es. Please find packages at http://spark.apache.org/third-party-projects.html
