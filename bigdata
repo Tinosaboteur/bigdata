@@ -1,88 +1,23 @@
-create_index = {
-    "settings": {
-        "analysis": {
-            "analyzer": {
-                # this configures the custom analyzer we need to parse vectors such that the scoring
-                # plugin will work correctly
-                "payload_analyzer": {
-                    "type": "custom",
-                    "tokenizer":"whitespace",
-                    "filter":"delimited_payload"
-                }
-            }
-        }
-    },
-    "mappings": {
-     "properties": {
-        "ratings": {
-          # this mapping definition sets up the fields for the rating events
-          "properties": {
-                "timestamp": {"type": "date"},
-                "userId": {"type": "integer"},
-                "movieId": {"type": "integer"},
-                "rating": {"type": "double"}
-            }  
-        },
-        "users": {
-            # this mapping definition sets up the metadata fields for the users
-            "properties": {
-                "userId": {
-                    "type": "integer"
-                },
-                "@model": {
-                    # this mapping definition sets up the fields for user factor vectors of our model
-                    "properties": {
-                        "factor": {
-                            "type": "text",
-                            "term_vector": "with_positions_offsets_payloads",
-                            "analyzer" : "payload_analyzer"
-                        },
-                        "version": {
-                            "type": "keyword"
-                        },
-                        "timestamp": {
-                            "type": "date"
-                        }
-                    }
-                }
-            }
-        },
-        "movies": {
-            # this mapping definition sets up the metadata fields for the movies
-            "properties": {
-                "movieId": {
-                    "type": "integer"
-                },
-                "tmdbId": {
-                    "type": "keyword"
-                },
-                "genres": {
-                    "type": "keyword"
-                },
-                "release_date": {
-                    "type": "date",
-                    "format": "year"
-                },
-                "@model": {
-                    # this mapping definition sets up the fields for movie factor vectors of our model
-                    "properties": {
-                        "factor": {
-                            "type": "text",
-                            "term_vector": "with_positions_offsets_payloads",
-                            "analyzer" : "payload_analyzer"
-                        },
-                        "version": {
-                            "type": "keyword"
-                        },
-                        "timestamp": {
-                            "type": "date"
-                        }
-                    }
-                }
-            }
-        }
-    }
-}}
-
 # create index with the settings and mappings above
 es.indices.create(index="movie_rec", body=create_index)
+
+# write ratings data
+ratings.write.format("es").save("movie_rec/ratings")
+
+# write user data, specifying the DataFrame column to use as the id mapping
+user_cleaned.write.format("es").option("es.mapping.id", "userId").save("movie_rec/users")
+
+# write movie data, specifying the DataFrame column to use as the id mapping
+movie_cleaned.write.format("es").option("es.mapping.id", "movieId").save("movie_rec/movies")
+
+# check load went ok
+print("User DF count: %d" % user_cleaned.count())
+print("ES index count: %d" % es.count(index="movie_rec", doc_type="users")['count'])
+
+print("Movie DF count: %d" % movie_cleaned.count())
+print("ES index count: %d" % es.count(index="movie_rec", doc_type="movies")['count'])
+
+# check write went ok
+print("Rating DF count: %d" % ratings.count())
+print("ES index count:  %d" % es.count(index="movie_rec", doc_type="ratings")['count'])
+
