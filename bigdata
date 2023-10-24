@@ -1,6 +1,9 @@
-from pyspark.sql import SparkSession
+ratings.write.format("es").save("movie_rec/ratings")
 
-spark = SparkSession.builder \
-    .appName("ElasticSearch") \
-    .config("spark.jars.packages", "org.elasticsearch:elasticsearch-hadoop:7.15.2") \
-    .getOrCreate()
+movie_cleaned.write.format("es").mapping({"movieId": "keyword"}).save("movie_rec/movies")
+
+print("Movie DF count: %d" % movie_cleaned.count())
+print("ES index count: %d" % es.count(index="movie_rec", doc_type="movies")["count"])
+
+print("Rating DF count: %d" % ratings.count())
+print("ES index count:  %s" % es.count(index="movie_rec", doc_type="ratings")["count"])
