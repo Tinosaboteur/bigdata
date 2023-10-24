@@ -1,2 +1,6 @@
-Py4JJavaError: An error occurred while calling o336.save.
-: java.lang.ClassNotFoundException: Failed to find data source: es. Please find packages at http://spark.apache.org/third-party-projects.html
+from pyspark.sql import SparkSession
+
+spark = SparkSession.builder \
+    .appName("ElasticSearch") \
+    .config("spark.jars.packages", "org.elasticsearch:elasticsearch-hadoop:7.15.2") \
+    .getOrCreate()
