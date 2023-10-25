@@ -1,9 +1,18 @@
-ratings.write.format("es").save("movie_rec/ratings")
+#
+cd /home/nhom4/Downloads/kafka_2.12-3.6.0
+#ter1
+./bin/zookeeper-server-start.sh config/zookeeper.properties
+#ter2
+./bin/kafka-server-start.sh config/server.properties
+#ter3
+-create topics "demo"
+./bin/kafka-topics.sh --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1 --topic mytopic --create
+-view console
+./bin/kafka-console-producer.sh --topic mytopic --bootstrap-server localhost:9092
+./bin/kafka-console-consumer.sh --topic mytopic --from-beginning --bootstrap-server localhost:9092
 
-movie_cleaned.write.format("es").mapping({"movieId": "keyword"}).save("movie_rec/movies")
-
-print("Movie DF count: %d" % movie_cleaned.count())
-print("ES index count: %d" % es.count(index="movie_rec", doc_type="movies")["count"])
-
-print("Rating DF count: %d" % ratings.count())
-print("ES index count:  %s" % es.count(index="movie_rec", doc_type="ratings")["count"])
+******
+#xem cac topic
+kafka-topics.sh --bootstrap-server localhost:9092 --list
+#xem thong tin topic
+kafka-topics.sh --bootstrap-server localhost:9092 --topic mytopic --describe
