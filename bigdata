@@ -43,3 +43,4 @@ not_rated = spark.sql(
     ''')
 
 //
+https://github.com/ssurmic/Spark-movie-recommender-system/blob/master/elasticsearch-spark-rec.ipynb
