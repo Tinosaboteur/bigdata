@@ -1,18 +1,45 @@
-#
-cd /home/nhom4/Downloads/kafka_2.12-3.6.0
-#ter1
-./bin/zookeeper-server-start.sh config/zookeeper.properties
-#ter2
-./bin/kafka-server-start.sh config/server.properties
-#ter3
--create topics "demo"
-./bin/kafka-topics.sh --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1 --topic mytopic --create
--view console
-./bin/kafka-console-producer.sh --topic mytopic --bootstrap-server localhost:9092
-./bin/kafka-console-consumer.sh --topic mytopic --from-beginning --bootstrap-server localhost:9092
+//
+import re
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+%matplotlib inline
+import pyspark
+from IPython.display import Image, HTML, display
+import sys
+from pyspark import SparkContext, SparkConf
+from pyspark.sql.types import *
+from pyspark.sql.functions import col, mean, udf, lit, current_timestamp, unix_timestamp, array_contains
+from pyspark.ml.recommendation import ALS
+from pyspark.ml.tuning import ParamGridBuilder, CrossValidator
+from pyspark.ml.evaluation import RegressionEvaluator
+from pyspark.ml.recommendation import ALS
+from pyspark.ml.tuning import ParamGridBuilder, CrossValidator
+from pyspark.ml.evaluation import RegressionEvaluator
+import tmdbsimple as tmdb
+import matplotlib.pyplot as plt
+from pyspark.sql import SparkSession
+//
+from pyspark.sql import SparkSession
+spark = SparkSession.builder\
+    .appName("Spark Session")\
+    .getOrCreate()
+//
+ratings = spark.read.csv("ratings.csv", header=True)
+ratings.cache()
+links = spark.read.csv("./links.csv", header=True)
+links.cache()
+movies = spark.read.csv("./movies.csv", header = True)
+movies.cache()
+//
 
-******
-#xem cac topic
-kafka-topics.sh --bootstrap-server localhost:9092 --list
-#xem thong tin topic
-kafka-topics.sh --bootstrap-server localhost:9092 --topic mytopic --describe
+ratings.createOrReplaceTempView("ratings_view")
+movies.createOrReplaceTempView("movies_view")
+# List movies not rated before
+not_rated = spark.sql(
+    '''SELECT DISTINCT movieID,title
+       FROM movies_view 
+       WHERE movieID NOT IN (SELECT DISTINCT movieID FROM ratings_view)
+    ''')
+
+//
