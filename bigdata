@@ -4,22 +4,29 @@ import altair as alt
 
 def main():
     df = load_data()
-    page = st.sidebar.selectbox("Choose a page", ["Homepage", "Exploration"])
+    if df is not None and not df.empty:
+        page = st.sidebar.selectbox("Choose a page", ["Homepage", "Exploration"])
 
-    if page == "Homepage":
-        st.header("This is your data explorer.")
-        st.write("Please select a page on the left.")
-        st.write(df)
-    elif page == "Exploration":
-        st.title("Data Exploration")
-        x_axis = st.selectbox("Choose a variable for the x-axis", df.columns, index=3)
-        y_axis = st.selectbox("Choose a variable for the y-axis", df.columns, index=4)
-        visualize_data(df, x_axis, y_axis)
+        if page == "Homepage":
+            st.header("This is your data explorer.")
+            st.write("Please select a page on the left.")
+            st.write(df)
+        elif page == "Exploration":
+            st.title("Data Exploration")
+            x_axis = st.selectbox("Choose a variable for the x-axis", df.columns, index=3)
+            y_axis = st.selectbox("Choose a variable for the y-axis", df.columns, index=4)
+            visualize_data(df, x_axis, y_axis)
+    else:
+        st.write("Data loading failed or data is empty.")
 
 @st.cache
 def load_data():
-    df = data.cars()
-    return df
+    try:
+        df = data.cars()
+        return df
+    except Exception as e:
+        st.write(f"An error occurred: {e}")
+        return None
 
 def visualize_data(df, x_axis, y_axis):
     graph = alt.Chart(df).mark_circle(size=60).encode(
