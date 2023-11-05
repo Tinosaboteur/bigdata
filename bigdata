@@ -1,2 +1,14 @@
-dfr = userRecommends.select("userId", "recommendations.movieId").toDF("userId", "movie_recommend")
-dfr.write.csv("/path/to/your/file.csv")
+from elasticsearch import Elasticsearch
+
+es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
+
+body = {
+    "mappings": {
+        "properties": {
+            "userId": {"type": "text"},
+            "movie_recommend": {"type": "text"}
+        }
+    }
+}
+
+es.indices.create(index='your_index', body=body)
